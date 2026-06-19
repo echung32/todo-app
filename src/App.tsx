@@ -308,7 +308,7 @@ function App() {
             Create Task
           </button>
           <button
-            onClick={() => setShowCompleted(true)}
+            onClick={() => setShowCompleted((v) => !v)}
             aria-haspopup="dialog"
             aria-expanded={showCompleted}
             className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium px-6 py-2.5 rounded-full hover:bg-white/20 transition-colors"
@@ -322,12 +322,24 @@ function App() {
         </div>
       </section>
 
-      {/* Completed drawer (z-[120]: above hero, below modal z-[200]) */}
+      {/* Scrim behind drawer (z-[110]: above hero+nav, below drawer z-[120]).
+          Dims the page and closes the drawer on click so the open drawer reads
+          as a temporary overlay; nav/Create Task stay reachable by dismissing. */}
+      <div
+        onClick={() => setShowCompleted(false)}
+        aria-hidden="true"
+        className={`fixed inset-0 z-[110] bg-black/50 transition-opacity duration-300 ${
+          showCompleted ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+
+      {/* Completed drawer (z-[120]: above hero+scrim, below modal z-[200]).
+          Capped width (never w-full) so the page stays partially visible. */}
       <div
         role="dialog"
         aria-label="Completed tasks"
         aria-hidden={!showCompleted}
-        className={`fixed top-0 right-0 bottom-0 z-[120] w-full max-w-sm p-3 sm:p-4 transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 bottom-0 z-[120] w-[85vw] max-w-sm p-3 sm:p-4 transition-transform duration-300 ease-out ${
           showCompleted ? 'translate-x-0' : 'translate-x-full pointer-events-none'
         }`}
       >
@@ -343,6 +355,7 @@ function App() {
             <button
               onClick={() => setShowCompleted(false)}
               aria-label="Close completed panel"
+              tabIndex={showCompleted ? undefined : -1}
               className="text-white/60 hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
@@ -372,6 +385,7 @@ function App() {
                     onClick={() => toggleTodo(todo.id)}
                     aria-label={`Restore "${todo.title}" to the mind map`}
                     title="Restore to mind map"
+                    tabIndex={showCompleted ? undefined : -1}
                     className="shrink-0 text-white/60 hover:text-white transition-colors p-1 -m-1"
                   >
                     <RotateCcw className="w-4 h-4" />
